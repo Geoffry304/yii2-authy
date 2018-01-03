@@ -16,13 +16,10 @@ class Module extends yii\base\Module {
     
     public $forceTranslation = false;
     
-    public $api_key = "";
-    
-    public $api_url = "";
-    public $default_countrycode = "32";
+   // public $default_countrycode = "32";
     
     //expiry time in days
-    public $default_expirytime = "30";
+   // public $default_expirytime = "30";
        
     
     public function init(){
@@ -38,10 +35,6 @@ class Module extends yii\base\Module {
         }
         
     }
-    
-    protected function instance(){
-        return new \Authy\AuthyApi($this->api_key, $this->$api_url);
-    }
-    
+      
   
 }
