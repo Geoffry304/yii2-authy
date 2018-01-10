@@ -14,12 +14,17 @@ namespace geoffry304\authy;
  * @author G.Vandeneede
  */
 class AuthyAsset extends \yii\web\AssetBundle {
-    // the alias to your assets folder in your file system 
+    // the alias to your assets folder in your file system
     public $sourcePath = '@vendor/geoffry304/yii2-authy/assets';
-    // finally your files..  
+    // finally your files..
     public $css = [
-        '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+        'css/custom.css',
     ];
     public $js = [
+    ];
+    // that are the dependecies, for makeing your Asset bundle work with Yii2 framework
+    public $depends = [
+        'yii\web\YiiAsset',
+        'yii\bootstrap\BootstrapAsset',
     ];
 }
