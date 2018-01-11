@@ -17,6 +17,8 @@ class Authy extends Component {
     public $default_countrycode = "32";
 
     public $userid;
+    
+    public $status = 1;
 
     //expiry time in seconds 30 * 60 * 60 * 24 = 30 days
     public $default_expirytime = 2592000;
