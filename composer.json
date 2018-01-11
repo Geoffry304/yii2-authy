@@ -25,7 +25,7 @@
         }
     ],
     "require": {
-        "authy/php": "3.0",
+        "authy/php": "dev-next-release",
         "borales/yii2-phone-input": "dev-master"
     },
     "autoload": {
