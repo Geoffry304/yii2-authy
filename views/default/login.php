@@ -19,7 +19,7 @@ $this->title = 'Sign In Token';
     </div>
     <!-- /.login-logo -->
     <div class="login-authy-box-body">
-        <p class="login-authy-box-msg"><?= Yii::t('app', 'Enter token to start session') ?></p>
+        <p class="login-authy-box-msg"><?= Yii::t('authy', 'Enter token to start session') ?></p>
 
         <?php //$form = ActiveForm::begin(['id' => 'login-form', 'enableClientValidation' => false]); ?>
         <form>

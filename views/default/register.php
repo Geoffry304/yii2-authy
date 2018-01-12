@@ -13,7 +13,7 @@ $this->title = 'Register token';
         <img class="login-authy-logo-img" src="<?=Yii::$app->assetManager->getPublishedUrl('@vendor/geoffry304/yii2-authy/assets')?>/css/images/authy.png">
     </div>
     <div class="login-authy-box-body">
-      <p class="login-authy-box-msg"><?= Yii::t('app', 'Register to get a token') ?></p>
+      <p class="login-authy-box-msg"><?= Yii::t('authy', 'Register to get a token') ?></p>
 
       <?php $form = ActiveForm::begin(['id' => 'register-form','enableClientValidation' => false]);?>
       <?php //$form->field($model, 'countrycode')->dropDownList([],['id' => 'authy-countries', 'value' => Yii::$app->authy->default_countrycode]); ?>

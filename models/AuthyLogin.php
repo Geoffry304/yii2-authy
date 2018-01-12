@@ -13,6 +13,7 @@ use \yii\db\ActiveRecord;
  * @property int $authyid
  * @property string $ip
  * @property string $expire_at
+ * @property string $hostname
  *
  * @property Authy $authy
  */
@@ -35,6 +36,7 @@ class AuthyLogin extends ActiveRecord{
             [['authyid'], 'integer'],
             [['expire_at'], 'safe'],
             [['ip'], 'string', 'max' => 255],
+			[['hostname'], 'string', 'max' => 255],
             [['authyid'], 'exist', 'skipOnError' => true, 'targetClass' => Authy::className(), 'targetAttribute' => ['authyid' => 'id']],
         ];
     }
@@ -45,10 +47,11 @@ class AuthyLogin extends ActiveRecord{
     public function attributeLabels()
     {
         return [
-            'id' => Yii::t('app', 'ID'),
-            'authyid' => Yii::t('app', 'Authyid'),
-            'ip' => Yii::t('app', 'Ip'),
-            'expire_at' => Yii::t('app', 'Expire At'),
+            'id' => Yii::t('authy', 'ID'),
+            'authyid' => Yii::t('authy', 'Authyid'),
+            'ip' => Yii::t('authy', 'Ip'),
+            'expire_at' => Yii::t('authy', 'Expire At'),
+			'hostname' => Yii::t('authy', 'Hostname'),
         ];
     }
 

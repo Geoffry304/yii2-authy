@@ -21,32 +21,6 @@ class DefaultController extends Controller
     public $module;
 
     /**
-     * @inheritdoc
-     */
-     // public function behaviors() {
-     //        return [
-     //            'access' => [
-     //                'class' => AccessControl::className(),
-     //                'only' => ['logout'],
-     //                'rules' => [
-     //                    [
-     //                        'actions' => ['logout'],
-     //                        'allow' => true,
-     //                        'roles' => ['@'],
-     //                    ],
-     //                ],
-     //            ],
-     //            'verbs' => [
-     //                'class' => VerbFilter::className(),
-     //                'actions' => [
-     //                    'logout' => ['post'],
-     //                ],
-     //            ],
-     //        ];
-     //    }
-
-
-    /**
      * Display login page
      */
     public function actionLogin()
@@ -58,7 +32,7 @@ class DefaultController extends Controller
           $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => Yii::$app->user->id])->one();
           if ($authy){
             $verification = Yii::$app->authy->verifyToken($authy->authyid, $_REQUEST['authy-token']);
-  if($verification->ok()){
+            if($verification->ok()){
        $model = \geoffry304\authy\models\AuthyLogin::find()->where(['ip' => Yii::$app->request->userIP, 'authyid' => $authy->getPrimaryKey()])->one();
        if ($model){
            $model->expire_at = date('Y-m-d  H:i:s', time() + Yii::$app->authy->default_expirytime);
@@ -69,6 +43,7 @@ class DefaultController extends Controller
          $model->authyid = $authy->getPrimaryKey();
          $model->expire_at = date('Y-m-d  H:i:s', time() + Yii::$app->authy->default_expirytime);
          $model->ip = Yii::$app->request->userIP;
+         $model->hostname = gethostname();
          if ($model->save()){
            return $this->goHome();
          }
