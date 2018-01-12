@@ -4,10 +4,8 @@ namespace geoffry304\authy\controllers;
 
 use Yii;
 use yii\web\Controller;
-use yii\web\Response;
-use yii\filters\AccessControl;
-use yii\filters\VerbFilter;
-use yii\widgets\ActiveForm;
+use yii\data\ActiveDataProvider;
+use geoffry304\authy\models\AuthyLogin;
 
 /**
  * Default controller for User module
@@ -59,6 +57,37 @@ class DefaultController extends Controller
 //        }
         return $this->render('login');
     }
+    
+    
+    /** 
+     * Lists all AuthyLogin models for the logged in user. 
+     * @return mixed 
+     */ 
+    public function actionAuthentications() 
+    { 
+        $dataProvider = new ActiveDataProvider([ 
+            'query' => AuthyLogin::find()->joinWith('authy')->where(['authy.userid' => Yii::$app->user->id]), 
+        ]); 
+
+        return $this->render('authentications', [ 
+            'dataProvider' => $dataProvider, 
+        ]); 
+    } 
+    
+    /** 
+     * Lists all AuthyLogin models for the logged in user. 
+     * @return mixed 
+     */ 
+    public function actionIndex() 
+    { 
+        $dataProvider = new ActiveDataProvider([ 
+            'query' => AuthyLogin::find()->joinWith('authy')->where(['authy.userid' => Yii::$app->user->id]), 
+        ]); 
+
+        return $this->render('authentications', [ 
+            'dataProvider' => $dataProvider, 
+        ]); 
+    } 
 
     /**
      * Display login page
@@ -90,13 +119,13 @@ class DefaultController extends Controller
 
         }
         $usermodel = $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        //if ($usermodel){
-        //  return $this->goHome();
-      //  } else {
+        if ($usermodel){
+          return $this->goHome();
+        } else {
           return $this->render('register',[
                               'model' => $model,
                   ]);
-        //}
+        }
 
     }
 
@@ -105,4 +134,33 @@ class DefaultController extends Controller
       Yii::$app->authy->requestSms($authy->authyid, ['force' => true]);
       return $this->redirect('login');
     }
+    
+    /** 
+     * Deletes an existing AuthyLogin model. 
+     * If deletion is successful, the browser will be redirected to the 'index' page. 
+     * @param integer $id
+     * @return mixed 
+     */ 
+    public function actionDelete($id) 
+    { 
+        $this->findModel($id)->delete(); 
+
+//        return $this->redirect(['authentications']); 
+        return $this->redirect(Yii::$app->request->referrer);
+    } 
+    /** 
+     * Finds the AuthyLogin model based on its primary key value. 
+     * If the model is not found, a 404 HTTP exception will be thrown. 
+     * @param integer $id
+     * @return AuthyLogin the loaded model 
+     * @throws NotFoundHttpException if the model cannot be found 
+     */ 
+    protected function findModel($id) 
+    { 
+        if (($model = AuthyLogin::findOne($id)) !== null) { 
+            return $model; 
+        } else { 
+            throw new NotFoundHttpException(Yii::t('authy', 'The requested page does not exist.')); 
+        } 
+    } 
 }

@@ -24,9 +24,12 @@
             "homepage": "http://dvit.be"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
         "authy/php": "dev-next-release",
-        "borales/yii2-phone-input": "dev-master"
+        "borales/yii2-phone-input": "dev-master",
+        "kartik-v/yii2-grid": "@dev",
+        "kartik-v/yii2-krajee-base": "@dev"
     },
     "autoload": {
         "psr-4": {
