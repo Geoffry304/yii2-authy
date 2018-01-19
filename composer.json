@@ -29,7 +29,8 @@
         "authy/php": "dev-next-release",
         "borales/yii2-phone-input": "dev-master",
         "kartik-v/yii2-grid": "@dev",
-        "kartik-v/yii2-krajee-base": "@dev"
+        "kartik-v/yii2-krajee-base": "@dev",
+        "mobiledetect/mobiledetectlib": "^2.8"
     },
     "autoload": {
         "psr-4": {

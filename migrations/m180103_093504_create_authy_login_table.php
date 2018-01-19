@@ -20,7 +20,13 @@ class m180103_093504_create_authy_login_table extends Migration
             'authyid' => $this->integer()->notNull(),
             'ip' => $this->string(255)->notNull(),
             'expire_at' => $this->timestamp()->notNull(),
-			'hostname' => $this->string()
+            'hostname' => $this->string(),
+            'device_type' => $this->string(),
+            'ip_org' => $this->string(),
+            'ip_country' => $this->string(),
+            'os' => $this->string(),
+            'browser' => $this->string(),
+            'brand' => $this->string()
         ]);
 
         // creates index for column `authyid`
