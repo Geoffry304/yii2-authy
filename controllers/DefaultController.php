@@ -6,63 +6,79 @@ use Yii;
 use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use geoffry304\authy\models\AuthyLogin;
+use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 
 /**
  * Default controller for User module
  */
 class DefaultController extends Controller {
 
-    /**
-     * @var \geoffry304\authy\Module
-     * @inheritdoc
-     */
+//    /**
+//     * @var \geoffry304\authy\Module
+//     * @inheritdoc
+//     */
     public $module;
 
+        public function behaviors() {
+        return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'rules' => [
+                    [
+                        'actions' => ['register', 'confirm', 'sendsms'],
+                        'allow' => true,
+                        'roles' => ['?', '@'],
+                    ],
+                    [
+                        'actions' => ['index', 'authentications','delete','removeotherdevices'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
+            'verbs' => [
+                'class' => VerbFilter::className(),
+                'actions' => [
+                    'logout' => ['post'],
+                ],
+            ],
+        ];
+    }
     /**
      * Display login page
      */
-    public function actionLogin() {
+    public function actionConfirm() {
+
+        if (!Yii::$app->user->getIsGuest()) {
+            return $this->goHome();
+        }
+
+        if (!Yii::$app->session->has('credentials')) {
+            return $this->redirect(['/user/login']);
+        }
+
         $this->layout = 'main';
-        $post = Yii::$app->request;
-        $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        $token = $post->get('authy-token');
-        $remember_computer = $post->get('remember_computer');
-        if (isset($token)) {
-            if ($authy) {
-                $verification = Yii::$app->authy->verifyToken($authy->authyid, $token);
-                if ($verification->ok()) {
-                        $model = new \geoffry304\authy\models\AuthyLogin();
-                        $model->authyid = $authy->getPrimaryKey();
-                        $model->expire_at = date('Y-m-d  H:i:s', time() + Yii::$app->authy->default_expirytime);
-                        $model->detectAttributes();
-                        if ($model->save()) {
-                              \Yii::$app->authy->checkIdentity($authy);
-                              $model->createCookie($remember_computer);
-                            return $this->goHome();
-                        }
-                }
-            } else {
-                return $this->redirect('register');
+
+        $credentials = Yii::$app->session->get('credentials');
+        $form = new \geoffry304\authy\forms\LoginForm();
+        $form->email = $credentials['login'];
+        $form->password = $credentials['pwd'];
+        $form->setScenario('2fa');
+
+        if (Yii::$app->request->isAjax && $form->load(Yii::$app->request->post())) {
+
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            return \yii\widgets\ActiveForm::validate($form);
+        }
+        if ($form->load(Yii::$app->request->post())) {
+            if ($form->login()) {
+                Yii::$app->session->set('credentials', null);
+                return $this->redirect(["/" . Yii::$app->defaultRoute]);
             }
         }
-        if (Yii::$app->authy->isActive($authy)){
-           return $this->goHome();
-        }
-        return $this->render('login');
-    }
-
-    /**
-     * Lists all AuthyLogin models for the logged in user.
-     * @return mixed
-     */
-    public function actionAuthentications() {
-        $dataProvider = new ActiveDataProvider([
-            'query' => AuthyLogin::find()->joinWith('authy')->where(['authy.userid' => Yii::$app->user->id]),
-        ]);
-
-        return $this->render('authentications', [
-                    'dataProvider' => $dataProvider,
-        ]);
+        return $this->render('confirm', ['model' => $form]);
     }
 
     /**
@@ -83,43 +99,65 @@ class DefaultController extends Controller {
      * Display login page
      */
     public function actionRegister() {
-        $this->layout = 'main';
-        $model = new \geoffry304\authy\models\Authy();
-        $model->userid = Yii::$app->user->id;
-        $post = Yii::$app->request->post();
-        if ($model->load($post)) {
-            $model->authyid = 1;
-            if ($model->save()) {
-                if ($model->saveCorrectPhone()) {
-                    $user = Yii::$app->authy->registerUser(Yii::$app->user->identity->email, $model->cellphone, $model->countrycode); //email, cellphone, country_code
-                    if ($user->ok()) {
-                        $model->authyid = $user->id();
-                        if ($model->validate()) {
-                            if ($model->save()) {
-                                $this->actionSendsms();
-                                return $this->redirect('login');
-                            }
-                        }
-                    } else {
-                        echo "problem";
-                    }
-                }
-            }
-        }
-        $usermodel = $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        if ($usermodel) {
+
+        if (!Yii::$app->user->getIsGuest()) {
             return $this->goHome();
-        } else {
-            return $this->render('register', [
-                        'model' => $model,
-            ]);
         }
+
+        if (!Yii::$app->session->has('credentials')) {
+            return $this->redirect(['/user/login']);
+        }
+
+        $this->layout = 'main';
+
+        $credentials = Yii::$app->session->get('credentials');
+        $form = new \geoffry304\authy\forms\LoginForm();
+        $form->email = $credentials['login'];
+        $form->password = $credentials['pwd'];
+        $form->setScenario('2faregister');
+
+        if (Yii::$app->request->isAjax && $form->load(Yii::$app->request->post())) {
+
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            return \yii\widgets\ActiveForm::validate($form);
+        }
+        if ($form->load(Yii::$app->request->post())) {
+            if ($form->validate()) {
+               if (\geoffry304\authy\models\Authy::addNewRecord($form)){
+                   $this->actionSendsms();
+                   $this->redirect('confirm');
+               } 
+            } 
+        }
+        return $this->render('register', [
+                    'model' => $form,
+        ]);
+//        }
     }
 
     public function actionSendsms() {
-        $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        Yii::$app->authy->requestSms($authy->authyid, ['force' => true]);
-        return $this->redirect('login');
+        $credentials = Yii::$app->session->get('credentials');
+        $form = new \geoffry304\authy\forms\LoginForm();
+
+        $authy = \geoffry304\authy\models\Authy::find()->where(['userid' => $form->whereUsernameOrEmail($credentials['login'])->id])->one();
+        $manager = new \Authy\AuthyApi($this->module->api_key, $this->module->api_url);
+        $manager->requestSms($authy->authyid, ['force' => true]);
+        return $this->redirect('confirm');
+    }
+
+    /**
+     * Lists all AuthyLogin models for the logged in user.
+     * @return mixed
+     */
+    public function actionAuthentications() {
+        $dataProvider = new ActiveDataProvider([
+            'query' => AuthyLogin::find()->joinWith('authy')->where(['authy.userid' => Yii::$app->user->id]),
+        ]);
+
+        return $this->render('authentications', [
+                    'dataProvider' => $dataProvider,
+        ]);
     }
 
     /**
@@ -150,17 +188,15 @@ class DefaultController extends Controller {
         }
     }
 
-    public function actionRemoveotherdevices(){
+    public function actionRemoveotherdevices() {
         $logins = AuthyLogin::find()->joinWith('authy')->where(['authy.userid' => Yii::$app->user->id])->all();
 
-        foreach ($logins as $login){
-            if ($login->checkIfCurrent() == null){
+        foreach ($logins as $login) {
+            if ($login->checkIfCurrent() == null) {
                 $this->findModel($login->id)->delete();
             }
         }
         return $this->redirect(Yii::$app->request->referrer);
-
-
     }
 
 }

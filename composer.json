@@ -24,7 +24,9 @@
             "homepage": "http://dvit.be"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
+        "amnah/yii2-user": "^5.0",
         "authy/php": "dev-next-release",
         "borales/yii2-phone-input": "dev-master",
         "kartik-v/yii2-grid": "@dev",

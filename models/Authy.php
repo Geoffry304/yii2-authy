@@ -18,18 +18,16 @@ use libphonenumber\PhoneNumberFormat;
  *
  * @property AuthyLogin[] $authyLogins
  */
-class Authy  extends ActiveRecord{
+class Authy extends ActiveRecord {
 
     /**
      * @inheritdoc
      */
-    public static function tableName()
-    {
+    public static function tableName() {
         return 'authy';
     }
 
-    public function behaviors()
-    {
+    public function behaviors() {
         return [
             [
                 'class' => PhoneInputBehavior::className(),
@@ -42,8 +40,7 @@ class Authy  extends ActiveRecord{
     /**
      * @inheritdoc
      */
-    public function rules()
-    {
+    public function rules() {
         return [
             [['userid', 'authyid', 'cellphone', 'countrycode'], 'required'],
             [['userid', 'authyid', 'countrycode'], 'integer'],
@@ -54,8 +51,7 @@ class Authy  extends ActiveRecord{
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
-    {
+    public function attributeLabels() {
         return [
             'id' => Yii::t('app', 'ID'),
             'userid' => Yii::t('app', 'Userid'),
@@ -68,20 +64,42 @@ class Authy  extends ActiveRecord{
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getAuthyLogins()
-    {
+    public function getAuthyLogins() {
         return $this->hasMany(AuthyLogin::className(), ['authyid' => 'id']);
     }
 
-    public function saveCorrectPhone(){
-      $prefix = "+". $this->countrycode;
-      if (substr($this->cellphone, 0, strlen($prefix)) == $prefix) {
-          $this->cellphone = substr($this->cellphone, strlen($prefix));
+    public function saveCorrectPhone() {
+        $prefix = "+" . $this->countrycode;
+        if (substr($this->cellphone, 0, strlen($prefix)) == $prefix) {
+            $this->cellphone = substr($this->cellphone, strlen($prefix));
+        }
+        if ($this->save()) {
+            return true;
+        } else {
+            return false;
+        }
     }
-      if($this->save()){
-        return true;
-      } else {
+
+    public static function addNewRecord($form) {
+        $model = new self;
+        $model->cellphone = $form->cellphone;
+        $model->userid = $form->getUser()->id;
+        $model->authyid = 1;
+        if ($model->save()) {
+            if ($model->saveCorrectPhone()) {
+                $validator = (new \geoffry304\authy\validators\TwoFactorRegisterValidator($form, $model))->validate();
+                if ($validator) {
+                    $model->authyid = $validator;
+                    if ($model->validate()) {
+                        if ($model->save()) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
         return false;
-      }
     }
+
 }

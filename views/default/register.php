@@ -10,7 +10,7 @@ $this->title = 'Register token';
 ?>
   <div class="login-authy-box">
     <div class="login-authy-logo">
-        <img class="login-authy-logo-img" src="<?=Yii::$app->assetManager->getPublishedUrl('@vendor/geoffry304/yii2-authy/assets')?>/css/images/authy.png">
+        <img class="login-authy-logo-img" src="<?= Yii::$app->getModule("authy")->logo?>">
     </div>
     <div class="login-authy-box-body">
       <p class="login-authy-box-msg"><?= Yii::t('authy', 'Register to get a token') ?></p>

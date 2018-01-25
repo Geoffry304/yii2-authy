@@ -74,6 +74,7 @@ public $remember_computer;
 
     public function detectAttributes() {
         $this->ip = Detect::ip();
+        //$this->ip = "localhost";
         $this->hostname = Detect::ipHostname();
         $this->device_type = Detect::deviceType();
         $this->ip_org = Detect::ipOrg();
@@ -100,17 +101,32 @@ public $remember_computer;
 
     public function checkIfCurrent(){
         $authy = Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        $model = Yii::$app->authy->isActive($authy);
-        return ($this->id == $model->id) ? "<i class=\"fa fa-check\" aria-hidden=\"true\"></i>" : null;
+        if (self::checkCookie() != null){
+         $cookie_array = explode(";", self::checkCookie());
+         if ($cookie_array[0] == $authy->authyid) {
+                $model =  AuthyLogin::findByCookie($authy->id, $cookie_array);
+                return ($this->id == $model->id) ? "<i class=\"fa fa-check\" aria-hidden=\"true\"></i>" : null;
+            }
+        }
+        return null;
     }
 
-    public function createCookie() {
+    public function createCookie($default_expiry) {
         $cookies = Yii::$app->response->cookies;
         $cookies->add(new \yii\web\Cookie([
             'name' => 'sft',
             'value' => $this->getHashedString(),
-            'expire' =>($this->remember_computer) ? (time() + Yii::$app->authy->default_expirytime) : 0
+            'expire' =>($this->remember_computer) ? (time() + $default_expiry) : 0
         ]));
+    }
+    
+    public static function checkCookie() {
+        $cookies = Yii::$app->request->cookies;
+        if (($cookie = $cookies->get('sft')) !== null) {
+            $value = $cookie->value;
+            return $value;
+        }
+        return null;
     }
 
     public function getDeleteUrl(){
@@ -133,5 +149,35 @@ public $remember_computer;
         }
 
 
+    }
+    
+    public static function addNewRecord($authy, $module,$remember){
+        $model = new self;
+        $model->authyid = $authy->id;
+            $model->remember_computer = $remember;
+            $model->expire_at = date('Y-m-d  H:i:s', time() + $module->default_expirytime);
+            $model->detectAttributes();
+            if ($model->save()){
+                $model->createCookie($module->default_expirytime);
+                if ($module->send_mail){
+                    $model->sendMail($module);
+                }
+            }
+    }
+    
+    public function sendMail($module){
+        /** @var Mailer $mailer */
+        
+        $mailer = Yii::$app->mailer;
+        $model = $this;
+        $subject = Yii::t('authy', 'Successful Login From New IP');
+        $useremail = \app\models\User::findOne($model->authy->userid)->email;
+        $result = $mailer->compose($module->emailViewPath . '/confirmEmail', compact("subject", "model", "useremail"))
+            ->setFrom($module->send_mail_from)
+            ->setTo($useremail)
+            ->setSubject($subject)
+            ->send();
+        
+        return $result;
     }
 }

@@ -4,7 +4,7 @@
 [![Software License](https://img.shields.io/badge/license-BSD-brightgreen.svg?style=flat-square)](https://github.com/geoffry304/yii2-authy/blob/master/LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/geoffry304/yii2-authy.svg?style=flat-square)](https://packagist.org/packages/geoffry304/yii2-authy)
 
-#### Component for using 2FA from Authy with Yii ####
+#### Extension  for using 2FA from Authy with Yii and amnah/yii2-user ####
 
 ## Installation ##
 
@@ -25,15 +25,17 @@ Update the config file
 ```php
 // app/config/web.php
 return [
-    'components' => [
-    'authy' => [
-            'class' => 'geoffry304\authy\components\Authy',
-            'api_key' => 'here your api key from authy',
-        ],
-    ],
     'modules' => [
                 'authy' => [
             'class' => 'geoffry304\authy\Module',
+            'api_key' => 'here your api key from authy',
+            'send_mail_from => 'demo@example.com
+        ],
+'user' => [
+            'class' => 'amnah\yii2\user\Module',
+            'modelClasses' => [
+                'LoginForm' => 'geoffry304\authy\forms\LoginForm'
+            ]
         ],
     ],
 ];
@@ -41,41 +43,23 @@ return [
 
 ## Using Authy ##
 
-You need to create a controller where every other controller extends from.
-Then you add next beforeAction
+You need to add this piece of code before you try performLogin
 
 
-    public function beforeAction($action) {
-        if (\Yii::$app->authy->status == 1) {
-        switch (\Yii::$app->authy->checkAction()){
-            case \geoffry304\authy\components\Authy::PARAM_REGISTER:
-                $this->redirect(\yii\helpers\Url::to(['/authy/default/register']));
-                parent::beforeAction($action);
-                break;
-            case \geoffry304\authy\components\Authy::PARAM_LOGIN:
-                $this->redirect(\yii\helpers\Url::to(['/authy/default/login']));
-                parent::beforeAction($action);
-                break;
-            case \geoffry304\authy\components\Authy::PARAM_REDIRECT:
-                //$this->goHome();
-                //$this->
-                //parent::beforeAction($action);
-                break;
-        }  
-            parent::beforeAction($action);
-            return true;
-        } else {
-            parent::beforeAction($action);
-            return true;
+$module2FA = Yii::$app->getModule('authy');
+        if ($module2FA){
+                    Yii::$app->session->set('credentials', ['login' => $model->email, 'pwd' => $model->password]);
+                    $returnUrl = $module2FA->validateLogin($model->getUser());
+                    return $returnUrl;  
         }
-        
-    }
   
   #### options ####
   
-  **Authycomponent** runs 'out of the box'. It has the following options to modify it's behaviour:
+  **Module** Has the following options to modify it's behaviour:
 
   - **api_key**: The key you get from authy website to make connection with it.
   - **api_url**: If you want to use an other url standard to https://api.authy.com.
   - **default_expirytime**: The expire time the user will need to insert a new token standard to 30 days.
-  - **status**: Activate or Deactive the authy component default to 1.
+  - **send_mail**: Send mail when new device is added, standard to true.
+  - **send_mail_from**: Send mail from required when send_mail is on.
+  - **logo**: Path tho logo used in confirmation and registration form and also in sending mail.
