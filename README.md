@@ -45,14 +45,14 @@ return [
 
 You need to add this piece of code before you try performLogin
 
-
+```php
 $module2FA = Yii::$app->getModule('authy');
         if ($module2FA){
                     Yii::$app->session->set('credentials', ['login' => $model->email, 'pwd' => $model->password]);
                     $returnUrl = $module2FA->validateLogin($model->getUser());
                     return $returnUrl;  
         }
-  
+ ``` 
   #### options ####
   
   **Module** Has the following options to modify it's behaviour:
@@ -63,3 +63,16 @@ $module2FA = Yii::$app->getModule('authy');
   - **send_mail**: Send mail when new device is added, standard to true.
   - **send_mail_from**: Send mail from required when send_mail is on.
   - **logo**: Path tho logo used in confirmation and registration form and also in sending mail.
+
+If you need extra security, you can check on every action and controller if the current session still exist in db.
+Update the config file
+```php
+// app/config/web.php
+return [
+    'bootstrap' => ['GlobalCheck'],
+    'components' => [
+        'GlobalCheck'=>[
+        'class'=>'geoffry304\authy\components\GlobalCheck'
+     ],
+];
+```

@@ -168,8 +168,6 @@ class DefaultController extends Controller {
      */
     public function actionDelete($id) {
         $this->findModel($id)->delete();
-
-//        return $this->redirect(['authentications']);
         return $this->redirect(Yii::$app->request->referrer);
     }
 

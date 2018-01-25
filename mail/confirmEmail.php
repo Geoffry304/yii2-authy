@@ -637,7 +637,7 @@ use yii\helpers\Url;
                                                                                             <td valign="top" class="mcnTextContent" style="padding-top:0; padding-right:18px; padding-bottom:9px; padding-left:18px;">
 
                                                                                                 <p><?= Yii::t('authy', 'Hello') ?>: <br>
-                                                                                                        <?= Yii::t('authy', 'The system has detected that your account is logged in frop an unused device.') ?><br>
+                                                                                                        <?= Yii::t('authy', 'The system has detected that your account is logged in from an unused device.') ?><br>
                                                                                                             <?= Yii::t('authy', 'Email') ?>: <strong><?= $useremail ?></strong></p>
 
                                                                                                             </td>

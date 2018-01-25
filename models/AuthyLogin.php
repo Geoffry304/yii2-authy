@@ -74,7 +74,6 @@ public $remember_computer;
 
     public function detectAttributes() {
         $this->ip = Detect::ip();
-        //$this->ip = "localhost";
         $this->hostname = Detect::ipHostname();
         $this->device_type = Detect::deviceType();
         $this->ip_org = Detect::ipOrg();
@@ -100,16 +99,24 @@ public $remember_computer;
     }
 
     public function checkIfCurrent(){
+        $model = self::currentValidate();
+        return ($model) ? (($this->id == $model->id) ? "<i class=\"fa fa-check\" aria-hidden=\"true\"></i>" : false) : false;
+    }
+    
+    public static function currentValidate(){
         $authy = Authy::find()->where(['userid' => Yii::$app->user->id])->one();
-        if (self::checkCookie() != null){
-         $cookie_array = explode(";", self::checkCookie());
-         if ($cookie_array[0] == $authy->authyid) {
-                $model =  AuthyLogin::findByCookie($authy->id, $cookie_array);
-                return ($this->id == $model->id) ? "<i class=\"fa fa-check\" aria-hidden=\"true\"></i>" : null;
+        if ($authy){
+            $cookie = self::checkCookie();
+            if ($cookie != null){
+               $cookie_array = explode(";", self::checkCookie());
+               if ($cookie_array[0] == $authy->authyid) {
+                    return AuthyLogin::findByCookie($authy->id, $cookie_array);
+               }
             }
         }
-        return null;
+        return false;
     }
+
 
     public function createCookie($default_expiry) {
         $cookies = Yii::$app->response->cookies;
