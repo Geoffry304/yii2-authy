@@ -45,14 +45,14 @@ return [
 
 You need to add this piece of code before you try performLogin
 
-
+```php
 $module2FA = Yii::$app->getModule('authy');
         if ($module2FA){
                     Yii::$app->session->set('credentials', ['login' => $model->email, 'pwd' => $model->password]);
                     $returnUrl = $module2FA->validateLogin($model->getUser());
                     return $returnUrl;  
         }
-  
+ ``` 
   #### options ####
   
   **Module** Has the following options to modify it's behaviour:
