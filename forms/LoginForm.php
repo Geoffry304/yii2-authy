@@ -137,7 +137,7 @@ class LoginForm extends BaseLoginForm {
     public function login() {
         if ($this->validate()) {
             \geoffry304\authy\models\AuthyLogin::addNewRecord($this->authy,$this->moduleAuthy,$this->rememberComputer);
-            $duration = $this->rememberMe ? $this->module->loginDuration : 0;
+            $duration = $this->rememberMe ? $this->moduleAuthy->default_loginDuration : 0;
             return Yii::$app->user->login($this->user, $duration);
         }
 

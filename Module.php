@@ -36,6 +36,8 @@ class Module extends yii\base\Module {
     //expiry time in seconds 30 * 60 * 60 * 24 = 30 days
     public $default_expirytime = 2592000;
     
+    public $default_loginDuration = 86400; //1day
+    
     public $alias = "@authy";
     
     public $emailViewPath = "@authy/mail";
@@ -88,24 +90,25 @@ class Module extends yii\base\Module {
         return $this->_identity;
     }
 
-    public function validateLogin(IdentityInterface $identity){
+    public function validateLogin(IdentityInterface $identity, $rememberMe){
         $authy = Authy::find()->where(['userid' => $identity->getId()])->one();
         $this->setAuthy($authy);
         $this->setIdentity($identity);
         if ($authy){
-            return $this->isActive();
+            return $this->isActive($rememberMe);
         } else {
             return Url::to(["/authy/default/register"]);
         }
     }
     
-    public function isActive(){
+    public function isActive($rememberMe){
         if (AuthyLogin::checkCookie() !== null) {
            $cookie_array = explode(";", AuthyLogin::checkCookie());
            if ($cookie_array[0] == $this->getAuthy()->authyid) {
                $cookie_value = AuthyLogin::findByCookie($this->getAuthy()->id, $cookie_array);
                 if ($cookie_value){
-                    Yii::$app->user->login($this->getIdentity());
+                    $loginDuration = $rememberMe ? $this->default_loginDuration : 0;
+                    Yii::$app->user->login($this->getIdentity(),$loginDuration);
                     return Yii::$app->homeUrl;
                 }
             }
