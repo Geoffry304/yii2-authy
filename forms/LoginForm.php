@@ -105,8 +105,8 @@ class LoginForm extends BaseLoginForm {
             /** @var \amnah\yii2\user\models\UserToken $userToken */
             $userToken = $this->module->model("UserToken");
             $userToken = $userToken::generate($user->id, $userToken::TYPE_EMAIL_ACTIVATE);
-            $user->sendEmailConfirmation($userToken);
-            $this->addError("email", Yii::t("user", "Confirmation email resent"));
+            //$user->sendEmailConfirmation($userToken);
+            //$this->addError("email", Yii::t("user", "Confirmation email resent"));
         }
     }
     

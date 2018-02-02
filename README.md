@@ -29,7 +29,7 @@ return [
                 'authy' => [
             'class' => 'geoffry304\authy\Module',
             'api_key' => 'here your api key from authy',
-            'send_mail_from => 'demo@example.com
+            'send_mail_from => 'demo@example.com'
         ],
 'user' => [
             'class' => 'amnah\yii2\user\Module',
