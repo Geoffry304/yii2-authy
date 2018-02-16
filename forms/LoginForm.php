@@ -179,7 +179,7 @@ class LoginForm extends BaseLoginForm {
         $profile = $this->module->model("Profile");
 
         $result = \Yii::$app->ad->getDefaultProvider()->search()->select(["name", "mail", "samaccountname", "givenname", "sn"])->where('samaccountname', '=', $this->email)->get();
-        if (!empty($result)) {
+        if (!empty($result[0])) {
             if (isset($result[0]['attributes']['mail'])) {
                 $user->email = $result[0]['attributes']['mail'][0];
                 $user->username = $this->email;
