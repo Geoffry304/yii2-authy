@@ -107,6 +107,7 @@ class Module extends yii\base\Module {
            if ($cookie_array[0] == $this->getAuthy()->authyid) {
                $cookie_value = AuthyLogin::findByCookie($this->getAuthy()->id, $cookie_array);
                 if ($cookie_value){
+                    Yii::$app->session->set('credentials', null);
                     $loginDuration = $rememberMe ? $this->default_loginDuration : 0;
                     Yii::$app->user->login($this->getIdentity(),$loginDuration);
                     return Yii::$app->homeUrl;
