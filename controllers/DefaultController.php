@@ -64,6 +64,8 @@ class DefaultController extends Controller {
         $form = new \geoffry304\authy\forms\LoginForm();
         $form->email = $credentials['login'];
         $form->password = $credentials['pwd'];
+        $form->rememberMe = $credentials['remember'];
+        $form->rememberComputer = $credentials['remember'];
         $form->setScenario('2fa');
 
         if (Yii::$app->request->isAjax && $form->load(Yii::$app->request->post())) {
@@ -114,6 +116,7 @@ class DefaultController extends Controller {
         $form = new \geoffry304\authy\forms\LoginForm();
         $form->email = $credentials['login'];
         $form->password = $credentials['pwd'];
+        $form->rememberMe = $credentials['remember'];
         $form->setScenario('2faregister');
 
         if (Yii::$app->request->isAjax && $form->load(Yii::$app->request->post())) {

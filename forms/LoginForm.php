@@ -126,18 +126,19 @@ class LoginForm extends BaseLoginForm {
         if (!$user->password) {
             if (isset($components['ad'])) {
                 if (!\Yii::$app->ad->auth()->attempt($this->email, $this->password)) {
-                    $this->addError("password", Yii::t("user", "Incorrect password"));
+                    $this->addError("password", Yii::t("user", "Incorrect passwords"));
                 }
             }
         } else if (!$user->validatePassword($this->password)) {
-            $this->addError("password", Yii::t("user", "Incorrect password"));
+            $this->addError("password", Yii::t("user", "Incorrect passwords"));
         }
     }
     
     public function login() {
         if ($this->validate()) {
             \geoffry304\authy\models\AuthyLogin::addNewRecord($this->authy,$this->moduleAuthy,$this->rememberComputer);
-            $duration = $this->rememberMe ? $this->moduleAuthy->default_loginDuration : 0;
+            $duration = $this->rememberMe ? $this->moduleAuthy->default_loginDuration: 0;
+//            $duration = 604800;
             return Yii::$app->user->login($this->user, $duration);
         }
 
@@ -179,7 +180,7 @@ class LoginForm extends BaseLoginForm {
         $profile = $this->module->model("Profile");
 
         $result = \Yii::$app->ad->getDefaultProvider()->search()->select(["name", "mail", "samaccountname", "givenname", "sn"])->where('samaccountname', '=', $this->email)->get();
-        if (!empty($result)) {
+        if (!empty($result[0])) {
             if (isset($result[0]['attributes']['mail'])) {
                 $user->email = $result[0]['attributes']['mail'][0];
                 $user->username = $this->email;
