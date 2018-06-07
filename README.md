@@ -48,11 +48,7 @@ You need to add this piece of code before you try performLogin
 ```php
 $module2FA = Yii::$app->getModule('authy');
 if ($module2FA) {
-<<<<<<< HEAD
     Yii::$app->session->set('credentials', ['login' => $model->email, 'pwd' => $model->password, 'remember' => $rememberMe]);
-=======
-    Yii::$app->session->set('credentials', ['login' => $model->email, 'pwd' => $model->password]);
->>>>>>> ebe4e08d6e187ffd85c5e38a97f5b1eea7255977
     $returnUrl = $module2FA->validateLogin($model->getUser());
     return $returnUrl;  
 }
