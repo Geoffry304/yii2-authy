@@ -27,7 +27,7 @@
     "minimum-stability": "dev",
     "require": {
         "amnah/yii2-user": "^5.0",
-        "authy/php": "dev-next-release",
+        "authy/php": "3.0",
         "borales/yii2-phone-input": "dev-master",
         "kartik-v/yii2-grid": "@dev",
         "kartik-v/yii2-krajee-base": "@dev",
