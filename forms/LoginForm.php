@@ -126,11 +126,11 @@ class LoginForm extends BaseLoginForm {
         if (!$user->password) {
             if (isset($components['ad'])) {
                 if (!\Yii::$app->ad->auth()->attempt($this->email, $this->password)) {
-                    $this->addError("password", Yii::t("user", "Incorrect passwords"));
+                    $this->addError("password", Yii::t("user", "Incorrect password"));
                 }
             }
         } else if (!$user->validatePassword($this->password)) {
-            $this->addError("password", Yii::t("user", "Incorrect passwords"));
+            $this->addError("password", Yii::t("user", "Incorrect password"));
         }
     }
     
